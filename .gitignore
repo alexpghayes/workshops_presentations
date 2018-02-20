@@ -33,3 +33,4 @@ vignettes/*.pdf
 *.knit.md
 
 Thumbs.db
+.Rproj.user
