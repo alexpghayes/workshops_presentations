@@ -1,6 +1,6 @@
 ---
 title: "Your First R Package"
-subtitle: "Please download these slides from TODO"
+subtitle: "Download these slides from goo.gl/aiuNFp"
 author: "Alex Hayes"
 date: "`r Sys.Date()`"
 output: beamer_presentation
@@ -27,7 +27,8 @@ library(knitr)
 2. Install some important packages:
 
 ```{r}
-pkgs <- c("devtools", "usethis", "roxygen2")
+pkgs <- c("devtools", "usethis",
+          "roxygen2", "testthat")
 install.packages(pkgs)
 ```
 
@@ -38,6 +39,7 @@ install.packages(pkgs)
 - Easy to share code with others
 - Understand why packages work the way they do
 - Learn where documentation lives
+- Nerd cred
 
 # Documentation pop-quiz
 
@@ -148,11 +150,9 @@ Live Demo
 
 # Putting `ernst_meme` into our package
 
-[Link to code](TODO: GIST)
-
 1. Download [this picture](https://drive.google.com/file/d/1E9PpcxJROCTkF6rJUigAOG5gmyVH7l9c/view?usp=sharing) of Ernst.
 
-2. Put it in `/path/to/package/inst/exdata/ernst.jpg`
+2. Put it in `inst/extdata/ernst.jpg`
 
 3. Add a dependency on the `meme` package
 
@@ -167,12 +167,23 @@ usethis::use_package("meme")
 #'
 #' @param upper Text to display at top of image.
 #' @param lower Text to display at bottom of image.
-#' @param vjust Vertical adjustment. Higher number means text
-#'   closer to center of image.
+#' @param vjust Vertical adjustment. Higher number
+#'   means text closer to center of image.
 #' @param ... Other arguments passed to `meme::meme`
 #'
 #' @return ggplot2 meme object
 #' @export
+ernst_meme <- function(upper = "", lower = "",
+                       vjust = 0.25, ...) {
+  if (.Platform$OS.type == "windows") {
+    windowsFonts(Impact = windowsFont("Impact"),
+                 Courier = windowsFont("Courier"))
+  }
+  u <- system.file("extdata", "ernst.jpg",
+                   package = "mypkg")
+  meme::meme(u, upper = upper, lower = lower,
+             vjust = vjust, ...)
+}
 ```
 
 # DOCUMENT! DOCUMENT! DOCUMENT!!!
@@ -182,7 +193,7 @@ Why:
 1. Need to tell R to export our functions.
 2. Need to describe what the functions do for when we inevitably forget in two days.
 
-Live demo
+Live demo adding in a third function from scratch!
 
 # Does it work??
 
@@ -200,30 +211,78 @@ X <- model.matrix(mpg ~ hp, mtcars)
 y <- mtcars$mpg
 ols_coefs(X, y)
 
-ernst_meme(lower = "something something probability related")
+ernst_meme(
+  lower = "something something probability related"
+)
 
 ?ols_coefs
 ?ernst_meme
 ```
 
-**Congrats**: You've just created your first R package!
+
+## Congrats!
+
+**You've just created your first R package!**
 
 # Workflow: refresher
 
 1. Put functions into `my_functions.R` files.
 2. Documentation the functions in `my_functions.R`.
 3. Compile the documentation.
-4. Build and install the package.
+4. Build and install the package. (or load the functions!)
 5. Test that things work like you'd expect.
 
-# This is the tip of an iceberg: resources
+
+# Loading vs building a package
+
+**Loading**: makes the package functions available in the current session
+
+**Building and installing**: Installs the package on your computer, after which you can access the functions with `library(mypkg)`
 
 
+# Add a simple test
+
+1. Start with:
+
+```{r}
+usethis::use_testthat()
+usethis::use_test("ols")
+```
+
+# Testing continued
+
+2. Change `tests/testthat/test-ols.R` to
+
+```{r}
+context("test-ols.R")
+
+test_that("multiplication works", {
+
+  X <- model.matrix(mpg ~ hp, mtcars)
+  y <- mtcars$mpg
+
+  result <- ols_coefs(X, y)
+  expected <- coef(lm(mpg ~ hp, mtcars))
+
+  expect_equivalent(result, expected)
+})
+```
+
+# Even more testing
+
+3. Run the tests
+4. Change your functions until the tests pass
+
+# Next Steps (details in Hadley's book)
+
+- Learn the RStudio keyboard shortcuts
+- Run the CRAN checks with `devtools::check()`
+- Sharing your package on Github + CRAN (add a LICENSE!)
+- Make a website for your package with `pkgdown`
+- Advertise your package
+- Provide vignettes (examples) showing how to use your package
 
 # Questions?
-
-@alexpghayes on Twitter
-alexpghayes@gmail.com
 
 Resources:
 
@@ -231,29 +290,7 @@ Resources:
 - Hadley Wickham's book [R Packages](http://r-pkgs.had.co.nz/)
 - `#rstats` on Twitter
 
+@alexpghayes on Twitter  
+alexpghayes@gmail.com
 
-
-# Next Steps
-
-1. Testing your code (have as backup slides)
-2. Sharing your code: Github + CRAN
-
-# Some notes on sharing your code
-
-ADVERTISE
-DOCUMENT
-
-# Putting these skills to good use
-
-Michael Weylandy opportunity to develop interface stuff
-
-# Back up slides
-
-# LICENSE
-
-```{r}
-usethis::use_mit_license("Alex Hayes")
-```
-
-
-
+**Summer opportunity**: `MoMA` package with Michael Weylandt and Dr. Allen
