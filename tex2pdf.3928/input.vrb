@@ -1,0 +1,22 @@
+\frametitle{Questions?}
+
+Resources:
+
+\begin{itemize}
+\tightlist
+\item
+  Hilary Parker's
+  \href{https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/}{Writing
+  an R package from Scratch} blog post
+\item
+  Hadley Wickham's book \href{http://r-pkgs.had.co.nz/}{R Packages}
+\item
+  \texttt{\#rstats} on Twitter
+\end{itemize}
+
+@alexpghayes on Twitter\\
+\href{mailto:alexpghayes@gmail.com}{\nolinkurl{alexpghayes@gmail.com}}
+
+\textbf{Summer opportunity}: \texttt{MoMA} package with Michael Weylandt
+and Dr.~Allen
+

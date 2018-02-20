@@ -28,7 +28,8 @@ library(knitr)
 
 ```{r}
 pkgs <- c("devtools", "usethis",
-          "roxygen2", "testthat")
+          "roxygen2", "testthat",
+          "ggplot2", "meme")
 install.packages(pkgs)
 ```
 
@@ -219,8 +220,7 @@ ernst_meme(
 ?ernst_meme
 ```
 
-
-## Congrats!
+# Congrats!
 
 **You've just created your first R package!**
 

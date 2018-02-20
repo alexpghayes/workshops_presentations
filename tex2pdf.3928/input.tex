@@ -1,0 +1,546 @@
+\documentclass[12pt,ignorenonframetext,compress]{beamer}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+\usetheme[]{metropolis}
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\newif\ifbibliography
+\hypersetup{
+            pdftitle={Your First R Package},
+            pdfauthor={Alex Hayes},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+
+\AtBeginPart{
+  \let\insertpartnumber\relax
+  \let\partname\relax
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \let\insertsectionnumber\relax
+    \let\sectionname\relax
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \let\insertsubsectionnumber\relax
+  \let\subsectionname\relax
+  \frame{\subsectionpage}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+\setbeamercolor{frametitle}{bg=gray}
+\hypersetup{colorlinks,citecolor=orange,filecolor=red,linkcolor=brown,urlcolor=blue}
+
+\title{Your First R Package}
+\subtitle{Download these slides from goo.gl/aiuNFp}
+\author{Alex Hayes}
+\date{2018-02-20}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}[fragile]{Pre-requisites}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Install RStudio + R
+\item
+  Install some important packages:
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pkgs <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"devtools"}\NormalTok{, }\StringTok{"usethis"}\NormalTok{,}
+          \StringTok{"roxygen2"}\NormalTok{, }\StringTok{"testthat"}\NormalTok{,}
+          \StringTok{"ggplot2"}\NormalTok{, }\StringTok{"meme"}\NormalTok{)}
+\KeywordTok{install.packages}\NormalTok{(pkgs)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Why Should You Use R Packages}
+
+\begin{itemize}
+\tightlist
+\item
+  Keep code that you use frequently in one place:
+  \href{https://github.com/alexpghayes/hayeslib}{hayeslib}
+\item
+  Fewer copy-paste errors
+\item
+  Easy to share code with others
+\item
+  Understand why packages work the way they do
+\item
+  Learn where documentation lives
+\item
+  Nerd cred
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Documentation pop-quiz}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  How you find the documentation for the \texttt{lm} function?
+\item
+  How do you see the source code for the \texttt{lm} function?
+\end{enumerate}
+
+Take 2 minutes
+
+\end{frame}
+
+\begin{frame}{Our Goal Today}
+
+Create a personal package with two functions
+
+\end{frame}
+
+\begin{frame}[fragile]{Function 1: Get OLS coefficients}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ols_coefs <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(X, y) \{}
+  \KeywordTok{solve}\NormalTok{(}\KeywordTok{t}\NormalTok{(X) }\OperatorTok{%*%}\StringTok{ }\NormalTok{X) }\OperatorTok{%*%}\StringTok{ }\KeywordTok{t}\NormalTok{(X) }\OperatorTok{%*%}\StringTok{ }\NormalTok{y}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}[fragile]{Function 2: MEMES}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ernst_meme <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{upper =} \StringTok{""}\NormalTok{, }\DataTypeTok{lower =} \StringTok{""}\NormalTok{,}
+                       \DataTypeTok{vjust =} \FloatTok{0.25}\NormalTok{, ...) \{}
+  \ControlFlowTok{if}\NormalTok{ (.Platform}\OperatorTok{$}\NormalTok{OS.type }\OperatorTok{==}\StringTok{ "windows"}\NormalTok{) \{}
+    \KeywordTok{windowsFonts}\NormalTok{(}\DataTypeTok{Impact =} \KeywordTok{windowsFont}\NormalTok{(}\StringTok{"Impact"}\NormalTok{),}
+                 \DataTypeTok{Courier =} \KeywordTok{windowsFont}\NormalTok{(}\StringTok{"Courier"}\NormalTok{))}
+\NormalTok{  \}}
+\NormalTok{  u <-}\StringTok{ }\KeywordTok{system.file}\NormalTok{(}\StringTok{"extdata"}\NormalTok{, }\StringTok{"ernst.jpg"}\NormalTok{,}
+                   \DataTypeTok{package =} \StringTok{"mypkg"}\NormalTok{)}
+\NormalTok{  meme}\OperatorTok{::}\KeywordTok{meme}\NormalTok{(u, }\DataTypeTok{upper =}\NormalTok{ upper, }\DataTypeTok{lower =}\NormalTok{ lower,}
+             \DataTypeTok{vjust =}\NormalTok{ vjust, ...)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Putting these functions into an R package}
+
+Live demo: create an R package skeleton with RStudio
+
+\end{frame}
+
+\begin{frame}[fragile]{What are these files?}
+
+\texttt{.gitignore}: Makes using \texttt{git} nice.
+
+\texttt{.Rbuildignore}: You can ignore this for now.
+
+\texttt{DESCRIPTION}: This is where all the meta-data about your package
+goes. More in a slide.
+
+\texttt{mypkg.Rproj}: Turns the directory into an RStudio project and
+allows you to save RStudio settings specific to the package.
+
+\texttt{NAMESPACE}: Controls which functions your package shows
+(``exports'') to users, and which functions it depends on (``imports'').
+You can ignore this file since \texttt{devtools} will create it for you.
+
+\texttt{R}: A folder where your R code goes.
+
+\end{frame}
+
+\begin{frame}[fragile]{DESCRIPTION (template)}
+
+We fill this in with the relevant info:
+
+\begin{verbatim}
+Package: mypkg
+Title: What the Package Does (one line, title case)
+Version: 0.0.0.9000
+Authors@R: person("First", "Last",
+                  email = "first.last@example.com",
+                  role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+Depends: R (>= 3.4.1)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{DESCRIPTION (template filled in)}
+
+\begin{verbatim}
+Package: mypkg
+Title: Calculate OLS Coefficients and Make Memes
+Version: 0.0.0.9000
+Authors@R: person("Alex", "Hayes",
+                  email = "aph3@rice.edu",
+                  role = c("aut", "cre"))
+Description: Provides function to calculate OLS
+    coefficients and make memes of
+    professors in the Rice statistics dept.
+Depends: R (>= 3.4.1)
+License: MIT
+Encoding: UTF-8
+LazyData: true
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Putting \texttt{ols\_coefs} into our package}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#' Get estimates of OLS coefficients}
+\CommentTok{#'}
+\CommentTok{#' @param X A data matrix.}
+\CommentTok{#' @param y A response vector.}
+\CommentTok{#'}
+\CommentTok{#' @return A vector of coefficients}
+\CommentTok{#' @export}
+
+\NormalTok{ols_coefs <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(X, y) \{}
+  \KeywordTok{solve}\NormalTok{(}\KeywordTok{t}\NormalTok{(X) }\OperatorTok{%*%}\StringTok{ }\NormalTok{X) }\OperatorTok{%*%}\StringTok{ }\KeywordTok{t}\NormalTok{(X) }\OperatorTok{%*%}\StringTok{ }\NormalTok{y}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Live Demo
+
+\end{frame}
+
+\begin{frame}[fragile]{Putting \texttt{ernst\_meme} into our package}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Download
+  \href{https://drive.google.com/file/d/1E9PpcxJROCTkF6rJUigAOG5gmyVH7l9c/view?usp=sharing}{this
+  picture} of Ernst.
+\item
+  Put it in \texttt{inst/extdata/ernst.jpg}
+\item
+  Add a dependency on the \texttt{meme} package
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{usethis}\OperatorTok{::}\KeywordTok{use_package}\NormalTok{(}\StringTok{"meme"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{ernst\_meme} documentation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#' Create a meme of professor Ernst}
+\CommentTok{#'}
+\CommentTok{#' @param upper Text to display at top of image.}
+\CommentTok{#' @param lower Text to display at bottom of image.}
+\CommentTok{#' @param vjust Vertical adjustment. Higher number}
+\CommentTok{#'   means text closer to center of image.}
+\CommentTok{#' @param ... Other arguments passed to `meme::meme`}
+\CommentTok{#'}
+\CommentTok{#' @return ggplot2 meme object}
+\CommentTok{#' @export}
+\NormalTok{ernst_meme <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(}\DataTypeTok{upper =} \StringTok{""}\NormalTok{, }\DataTypeTok{lower =} \StringTok{""}\NormalTok{,}
+                       \DataTypeTok{vjust =} \FloatTok{0.25}\NormalTok{, ...) \{}
+  \ControlFlowTok{if}\NormalTok{ (.Platform}\OperatorTok{$}\NormalTok{OS.type }\OperatorTok{==}\StringTok{ "windows"}\NormalTok{) \{}
+    \KeywordTok{windowsFonts}\NormalTok{(}\DataTypeTok{Impact =} \KeywordTok{windowsFont}\NormalTok{(}\StringTok{"Impact"}\NormalTok{),}
+                 \DataTypeTok{Courier =} \KeywordTok{windowsFont}\NormalTok{(}\StringTok{"Courier"}\NormalTok{))}
+\NormalTok{  \}}
+\NormalTok{  u <-}\StringTok{ }\KeywordTok{system.file}\NormalTok{(}\StringTok{"extdata"}\NormalTok{, }\StringTok{"ernst.jpg"}\NormalTok{,}
+                   \DataTypeTok{package =} \StringTok{"mypkg"}\NormalTok{)}
+\NormalTok{  meme}\OperatorTok{::}\KeywordTok{meme}\NormalTok{(u, }\DataTypeTok{upper =}\NormalTok{ upper, }\DataTypeTok{lower =}\NormalTok{ lower,}
+             \DataTypeTok{vjust =}\NormalTok{ vjust, ...)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{DOCUMENT! DOCUMENT! DOCUMENT!!!}
+
+Why:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Need to tell R to export our functions.
+\item
+  Need to describe what the functions do for when we inevitably forget
+  in two days.
+\end{enumerate}
+
+Live demo adding in a third function from scratch!
+
+\end{frame}
+
+\begin{frame}{Does it work??}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Compile the documentation!
+\item
+  Build and install!
+\end{enumerate}
+
+Live demo
+
+\end{frame}
+
+\begin{frame}[fragile]{Code from live demo}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(mypkg)}
+
+\NormalTok{X <-}\StringTok{ }\KeywordTok{model.matrix}\NormalTok{(mpg }\OperatorTok{~}\StringTok{ }\NormalTok{hp, mtcars)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{mtcars}\OperatorTok{$}\NormalTok{mpg}
+\KeywordTok{ols_coefs}\NormalTok{(X, y)}
+
+\KeywordTok{ernst_meme}\NormalTok{(}
+  \DataTypeTok{lower =} \StringTok{"something something probability related"}
+\NormalTok{)}
+
+\NormalTok{?ols_coefs}
+\NormalTok{?ernst_meme}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Congrats!}
+
+\textbf{You've just created your first R package!}
+
+\end{frame}
+
+\begin{frame}[fragile]{Workflow: refresher}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Put functions into \texttt{my\_functions.R} files.
+\item
+  Documentation the functions in \texttt{my\_functions.R}.
+\item
+  Compile the documentation.
+\item
+  Build and install the package. (or load the functions!)
+\item
+  Test that things work like you'd expect.
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]{Loading vs building a package}
+
+\textbf{Loading}: makes the package functions available in the current
+session
+
+\textbf{Building and installing}: Installs the package on your computer,
+after which you can access the functions with \texttt{library(mypkg)}
+
+\end{frame}
+
+\begin{frame}[fragile]{Add a simple test}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Start with:
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{usethis}\OperatorTok{::}\KeywordTok{use_testthat}\NormalTok{()}
+\NormalTok{usethis}\OperatorTok{::}\KeywordTok{use_test}\NormalTok{(}\StringTok{"ols"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}[fragile]{Testing continued}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Change \texttt{tests/testthat/test-ols.R} to
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{context}\NormalTok{(}\StringTok{"test-ols.R"}\NormalTok{)}
+
+\KeywordTok{test_that}\NormalTok{(}\StringTok{"multiplication works"}\NormalTok{, \{}
+
+\NormalTok{  X <-}\StringTok{ }\KeywordTok{model.matrix}\NormalTok{(mpg }\OperatorTok{~}\StringTok{ }\NormalTok{hp, mtcars)}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{mtcars}\OperatorTok{$}\NormalTok{mpg}
+
+\NormalTok{  result <-}\StringTok{ }\KeywordTok{ols_coefs}\NormalTok{(X, y)}
+\NormalTok{  expected <-}\StringTok{ }\KeywordTok{coef}\NormalTok{(}\KeywordTok{lm}\NormalTok{(mpg }\OperatorTok{~}\StringTok{ }\NormalTok{hp, mtcars))}
+
+  \KeywordTok{expect_equivalent}\NormalTok{(result, expected)}
+\NormalTok{\})}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Even more testing}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Run the tests
+\item
+  Change your functions until the tests pass
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]{Next Steps (details in Hadley's book)}
+
+\begin{itemize}
+\tightlist
+\item
+  Learn the RStudio keyboard shortcuts
+\item
+  Run the CRAN checks with \texttt{devtools::check()}
+\item
+  Sharing your package on Github + CRAN (add a LICENSE!)
+\item
+  Make a website for your package with \texttt{pkgdown}
+\item
+  Advertise your package
+\item
+  Provide vignettes (examples) showing how to use your package
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Questions?}
+
+Resources:
+
+\begin{itemize}
+\tightlist
+\item
+  Hilary Parker's
+  \href{https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/}{Writing
+  an R package from Scratch} blog post
+\item
+  Hadley Wickham's book \href{http://r-pkgs.had.co.nz/}{R Packages}
+\item
+  \texttt{\#rstats} on Twitter
+\end{itemize}
+
+@alexpghayes on Twitter\\
+\href{mailto:alexpghayes@gmail.com}{\nolinkurl{alexpghayes@gmail.com}}
+
+\textbf{Summer opportunity}: \texttt{MoMA} package with Michael Weylandt
+and Dr.~Allen
+
+\end{frame}
+
+\end{document}
