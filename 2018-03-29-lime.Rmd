@@ -18,7 +18,6 @@ header-includes:
 knitr::opts_chunk$set(
   echo = FALSE,
   eval = TRUE,
-  cache = TRUE,
   warning = FALSE,
   message = FALSE)
 
