@@ -21,20 +21,47 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE, warning = FALSE, message = FALS
 library(tidyverse)
 library(broom)
 
-options(tibble.print_max = 3)
+options(tibble.print_max = 3, tibble.print_min = 3)
 ```
 
 ## Outline
 
+1. What is broom?
 1. Progress so far
     - Bug fixes and pull requests
     - New test suite
     - New documentation
-2. broom 0.5.0 release
-3. Lessons learned
-4. The future of broom
+1. broom 0.5.0 release
+1. Lessons learned
+1. The future of broom
+
+# What is broom?
+
+## `broom` makes it easy to work with model objects
+
+- `tidy()` summarizes information about model components
+- `glance()` reports information about the entire model
+- `augment()` adds informations about observations to a dataset
+- Output is a tidy tibble.
+- Easy to interact with programmatically.
+
+## Quick usage examples
+
+```{r, eval = TRUE}
+fit <- lm(hp ~ ., mtcars)
+
+tidy(fit)
+glance(fit)
+```
+
 
 # What I've been working on
+
+## Breakdown of time spent so far
+
+- 2 weeks of bug fixes and merging pull requests
+- 2 weeks writing tests
+- 2 weeks writing documentation
 
 ## Bug fixes and pull requests: notes
 
@@ -46,6 +73,8 @@ options(tibble.print_max = 3)
     - Contributors have wide range of R experience
     - Tests sometime missing or limited
     - Documentation sometimes sparse or missing
+    
+Closed ~70 bugs and ~30 pull requests so far
 
 ## Bug fixes and pull requests: adding tidiers vignette
 
@@ -54,6 +83,8 @@ Goal: Make it easier to make a good PR
 - Missing key piece: documentation about standards
 - New vignette addresses this
     - Work in progress
+    - Like `CONTRIBUTING.md` on steroids
+    - Eventually: full walk-through like recipes [custom steps vignette](https://tidymodels.github.io/recipes/articles/Custom_Steps.html)
 
 https://broom.tidyverse.org/articles/adding-tidiers.html
 
@@ -152,7 +183,7 @@ select(glance(cfa.fit), 1:5)
 - Goal: push consistency burden onto PR authors
 - Describe acceptable column names in `tidy.yaml`:
 
-```{yaml}
+```
 - column: AIC
   description: Akaike's Criterion.
   used_by:
