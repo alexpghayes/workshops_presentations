@@ -16,7 +16,7 @@ header-includes:
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 library(tidyverse)
 library(broom)
@@ -26,176 +26,99 @@ options(tibble.print_max = 3, tibble.print_min = 3)
 
 ## Outline
 
-1. What is broom?
-1. Progress so far
-    - Bug fixes and pull requests
-    - New test suite
-    - New documentation
-1. broom 0.5.0 release
+1. What is `broom`?
+1. `broom 0.5.0` release
 1. Lessons learned
-1. The future of broom
+1. Moving forward
 
-# What is broom?
+# What is `broom`?
 
-## `broom` makes it easy to work with model objects
+## `broom` tidies model objects
+
+**Input**: model object
+
+**Output**: tidy tibble
 
 - `tidy()` summarizes information about model components
 - `glance()` reports information about the entire model
 - `augment()` adds informations about observations to a dataset
-- Output is a tidy tibble.
-- Easy to interact with programmatically.
 
-## Quick usage examples
+## Usage
 
-```{r, eval = TRUE}
+```{r}
 fit <- lm(hp ~ ., mtcars)
 
 tidy(fit)
 glance(fit)
 ```
 
+# `broom 0.5.0`
 
-# What I've been working on
+## `broom 0.5.0`: new features
 
-## Breakdown of time spent so far
+- Tibble output
+- New test suite
+- New function documentation
+- New vignette
+- New tidiers
+- Many bug fixes
+- Many deprecations
 
-- 2 weeks of bug fixes and merging pull requests
-- 2 weeks writing tests
-- 2 weeks writing documentation
+## `broom 0.5.0`: tibble output
 
-## Bug fixes and pull requests: notes
+```{r}
+tidy(prcomp(iris[, 1:4]), matrix = "d")
+```
 
-- Triaged several years of issues
-- Bugs are generally easy to fix
-    - But there are a lot
-- Pull requests make the world go round
-    - High levels of contributor enthusiasm!!!
-    - Contributors have wide range of R experience
-    - Tests sometime missing or limited
-    - Documentation sometimes sparse or missing
+## `broom 0.5.0`: tibble output
+
+This was a breaking change. Common issues:
+
+- subsetting with `[` and expecting a vector.
+- setting rownames on a tibble.
+- using augment on models making use of matrix covariates / outcomes.
+    - i.e. `survival::Surv()`
     
-Closed ~70 bugs and ~30 pull requests so far
+Broom has 92 reverse dependencies. This (plus deprecations) broke 15 of them.
 
-## Bug fixes and pull requests: adding tidiers vignette
+## `broom 0.5.0`: new test suite
 
-Goal: Make it easier to make a good PR
-
-- Missing key piece: documentation about standards
-- New vignette addresses this
-    - Work in progress
-    - Like `CONTRIBUTING.md` on steroids
-    - Eventually: full walk-through like recipes [custom steps vignette](https://tidymodels.github.io/recipes/articles/Custom_Steps.html)
-
-https://broom.tidyverse.org/articles/adding-tidiers.html
-
-## Test suite: coverage
-
-- Pre 0.5.0 line coverage ~40 percent
-- Most lines have some coverage
-    - ~80 percent line coverage
-    - Higher because deprecated tests skipped
-- Line coverage less important than model coverage
-
-## Aside: model coverage
-
-Aside:
-
-```{r, eval = FALSE}
-# glance.arima coverage was 100 percent.
-# tested output of:
-glance(arima(lh, order = 1:3))
-
-# but this was broken until recently:
-glance(arima(lh, order = 1:3, method = "CSS"))
+```{r, echo = FALSE, out.width = "4in", fig.align = "center"}
+knitr::include_graphics("figures/broom_coverage.png")
 ```
 
-- Same class can correspond to many varied model objects
-- Hard to write varied tests for unfamiliar model objects
+- Line coverage: $40\% \to 80\%$ 
+- Higher in practice since we skip deprecated tests
+- Revived the Travis CI build
 
-## Aside: subtle bugs
-
-- Easy to extract wrong `df` from model
-    - About to change `df` for `lm` objects
-- Arguments can disappear into `...`
-    - Not sure how to test
-    - Current approach: warnings in documentation
-
-## Example: arguments disappearing into `...`
-
-```{r, eval = TRUE}
-fit <- lm(hp ~ ., mtcars)
-
-# misspelled argument
-td <- tidy(fit, conf.int = TRUE, comf.level = 0.9)
-
-# no error, output looks exactly like
-# you might expect
-```
-
-## Test suite: tibble output
+## `broom 0.5.0`: what gets tested
 
 Test that
 
 - `tidy()`, `glance()`, and `augment()` return tibbles.
 - `glance()` returns a single row.
-- `augment()` does some input validation.
-    - In progress
+- Occasionally check dimensions of output
 
-```{r}
+```{r, eval = FALSE}
 fit <- lm(hp ~ ., mtcars)
 td <- tidy(fit)
 check_tidy_output(td)
 ```
 
-## Test suite: argument checking
+## `broom 0.5.0`: new function documentation
 
-```{r}
-check_arguments(tidy.lm)
+- Gave each function it's own roxygen
+    - Had started to document too much in one place
+- Heavily cross-linked and aliased new docs
+- Users requested more explicit doc for stuff like:
+
+```{r, eval = FALSE}
+#' @rdname augment.lm
+#' @export
+augment.glm <- augment.lm
 ```
 
-- Checks arguments against master list
-- Checks default arguments
-    - Shouldn't be missing
-    - `conf.int = FALSE`
-    - `conf.level = 0.95`
-    - `conf.int` and `conf.level` always come as a pair
-    
-Goal: enforce consistency, especially in new PRs
-
-- Checked this semi-manually in 0.5.0
-- Tests will automate this in 0.7.0
-
-## Test suite: column naming
-
-```{r, eval = TRUE}
-library(lavaan)
-
-cfa.fit <- cfa(
-   'F =~ x1 + x2 + x3 + x4 + x5',
-   data = HolzingerSwineford1939, group = "school"
-)
-
-select(glance(cfa.fit), 1:5)
-```
-
-## Test suite: column naming strategy
-
-- Goal: push consistency burden onto PR authors
-- Describe acceptable column names in `tidy.yaml`:
-
-```
-- column: AIC
-  description: Akaike's Criterion.
-  used_by:
-    - ivreg
-```
-
-- Compile `tidy.yaml` into a `column_glossary` tibble
-- Export `column_glossary` (downstream package maintainers have asked for this)
-- Test output column names against `column_glossary`
-- Populate documentation from `column_glossary`
-
-## Documentation: templates
+## `broom 0.5.0`: dealing with repeated documentation
 
 Many repeated arguments:
 
@@ -212,7 +135,7 @@ tidy.ivreg <- function(x,
 
 Should share documentation for `conf.int`.
 
-## Documentation: templates
+## `broom 0.5.0`: `roxygen2 @template`s
 
 `roxygen2` templates make this easy:
 
@@ -230,7 +153,7 @@ Where `man-roxygen/param_confint.R` looks like:
 #' @md
 ```
 
-## Documentation: templates
+## `broom 0.5.0`: what is templated
 
 Templates currently used to generate:
 
@@ -241,53 +164,235 @@ Templates currently used to generate:
 
 documentation sections.
 
-## Documentation: individualize documentation
+## `broom 0.5.0`: new README + `pkgdown` site
 
-Previously `tidy.object`, `glance.object` and `augment.object` would all be documented together.
-
-- Gave each function it's own roxygen documentation and Rd file
-    - Less magical
-    - Heavily cross-linked and aliased
-- Replaced lots of confusing documentation like:
-
-```{r, eval = FALSE}
-#' @rdname augment.lm
-#' @export
-augment.glm <- augment.lm
+```{r, echo = FALSE, out.width = "4in", fig.align = "center"}
+knitr::include_graphics("figures/broom_readme.png")
 ```
 
-## Documentation: return columns
+## `broom 0.5.0`: new vignette
 
-Goal for 0.7.0: populate `@return` from `column_glossary`.
+```{r, echo = FALSE, out.width = "4in", fig.align = "center"}
+knitr::include_graphics("figures/broom_new_tidiers.png")
+```
 
-- Writing the glossary will take lots of time
-- Currently have `@template` prototype
-    - Hadley recommended using `@evalRd` instead
+## `broom 0.5.0`: new tidiers
 
-# broom 0.5.0
 
-## broom 0.5.0: features
+```{r, echo = FALSE, out.width = "4in", fig.align = "center"}
+knitr::include_graphics("figures/broom_new_methods.png")
+```
 
-- Tibble output
-- New test suite
-- New documentation
-    - Vignettes
-    - Function documentation
-- ~10 new tidiers (all contributed)
-- Tons of bug fixes (mostly contributed)
+## `broom 0.5.0`: Bug fixes and pull requests
 
-## broom 0.5.0: tibble output
+Start of internship: 134 issues, 34 pull requests
 
-Tibbles break some things, mostly when:
+- Triaged two year backlog of issues
+- Closed ~80 issues
+- Merged 40 pull requests
 
-- subsetting with `[` and expecting a vector.
-- setting rownames on a tibble.
-- using augment on models making use of matrix covariates / outcomes.
-    - i.e. `survival::Surv()`
+Current status:
+
+```{r, echo = FALSE, out.width = "4in", fig.align = "center"}
+knitr::include_graphics("figures/broom_issues.png")
+```
+
+## `broom 0.5.0`: Bug fixes and pull requests
+
+- Contributors are enthusiastic and fun to work with
+- Lots of issues, but generally easy to fix
+- *Beginner Friendly* tag has been immensely popular:
+
+```{r, echo = FALSE, out.width = "4in", fig.align = "center"}
+knitr::include_graphics("figures/broom_beginner_friendly.png")
+```
+
+## `broom 0.5.0`: deprecations: tidy statistical objects only
+
+- Some people were using `broom` like `as_tibble()`
+- Deprecations to prevent this:
+
+    - `tidy.data.frame()`
+    - `tidy.matrix()`
+    - `tidy.numeric()`
+    - `tidy.character()`
+    - `tidy.logical()`
+
+## `broom 0.5.0`: soft deprecations: mixed models
+
+Due to high maintanence burden, moving tidiers for 
+
+- lme, lme4 and nmle models,
+- brms models,
+- rstanarm models, and 
+- mcmc objects
+
+to Ben Bolker's `broom.mixed` (hopefully on CRAN soon).
+
+# Lessons learned
+
+## Lesson: writing and sanity checking tidiers is hard
+
+```{r, echo = FALSE, out.width = "1.75in", fig.align = "center"}
+knitr::include_graphics("figures/meme_list_objects.jpg")
+knitr::include_graphics("figures/meme_formula_methods.jpg")
+```
+
+## Lesson: `broom` depends on high quality PRs
+
+```{r, echo = FALSE, out.height = "0.75in", out.width = "3in", fig.align = "center"}
+knitr::include_graphics("figures/broom_contributors.jpg")
+```
+
+**Key: empower contributors to make high quality PRs**
+
+- Document behavioral expectations for tidying methods
+- Provide consistent documentation
+- Automate as much as possible in tests
+
+**Merge now, fix later**: community involvement far more important than perfect code
+
+## Lesson: `augment()` is hard
+
+Original thought: `tidy()` is most ambiguous method, will be hardest to work with
+
+Incorrect: `augment()` is hard
+
+- Need different behavior for `data` and `newdata` args
+- People often don't implement it
+- Have to deal with model both model input and output
+
+## Lesson: there are many ways to represent a model
+
+Representations of a fit model:
+
+- Mathematical: $y \sim \mathcal N(X \hat \beta, \sigma^2)$
+- Code object: `fit <- lm(hp ~ . , mtcars); fit`
+- Relational: `tidy(fit), glance(fit), augment(fit)`
+- ???
+
+Opinion: need a *tidy modelling* paper to clarify the key objects in play like *tidy data* did
+
+# Moving forward
+
+## What's happening next
+
+- More tools for contributors
+- More deprecations
+- Integrating `broom` and friends into `tidymodels`
+- I will likely take over as `broom` maintainer
+
+## Tools for contributors: tests for argument names
+
+```{r, eval = FALSE}
+check_arguments(tidy.lm)
+```
+
+- Checks arguments against master list
+- Checks default arguments
+    - Shouldn't be missing
+    - `conf.int = FALSE`
+    - `conf.level = 0.95`
+    - `conf.int` and `conf.level` always come as a pair
+- Tests written, but not yet passing
     
-## broom 0.5.0: matrix column and augment example
+Goal: enforce consistency, especially in new PRs
+
+## Tools for contributors: tests for column names
 
 ```{r}
+library(lavaan)
+
+cfa.fit <- cfa(
+   'F =~ x1 + x2 + x3 + x4 + x5',
+   data = HolzingerSwineford1939, group = "school"
+)
+
+select(glance(cfa.fit), 1:5)
+```
+
+## Tools for contributors: `column_glossary` approach
+
+- Describe acceptable column names in `tidy.yaml`:
+
+```
+- column: AIC
+  description: Akaike's Criterion.
+  used_by:
+    - ivreg
+```
+
+- Compile `tidy.yaml` into a `column_glossary` tibble
+- Export `column_glossary` (downstream package maintainers have asked for this)
+- Test output column names against `column_glossary`
+- Populate documentation from `column_glossary`
+- Have a `@template` prototype, Hadley suggested `@evalRd` instead
+
+## Tools for contributors: more vignettes
+
+- Second draft of *Adding new tidiers* vignette
+    - Detailed and explicit behavioral specification
+    - Will write tests for as many of these as possible
+- New vignette on adding tidiers to packages other than broom
+    - Based on reexport generics from `modelgenerics`
+    
+## More deprecations
+
+- Hard deprecate mixed model tidiers in favor of `broom.mixed`
+- Soft deprecate time series tidiers in favor of `sweep`
+- `tidy.table()`
+- `tidy.ftable()`
+- etc
+
+## `tidymodels` integration: vision
+
+- Finish any missing aspects of the tidier behavior specification
+- Document this clearly
+- Develop tests for as much fo the spec as possible
+- Reach out to package maintainers working on similar packages
+- Invite them to join `tidymodels` once they meet the spec
+- Some system for keeping track of where tidiers live
+- Potentially break boom into smaller pieces
+
+```{r, eval = FALSE}
+library(tidymodels)  # load everything
+```
+
+## `tidymodels` integration: possible collaborations
+
+- `sweep`: time series
+- `tidytext`: natural language processing
+- `broomstick`: trees
+- `broom.mixed`: mixed models, bayesian models
+- `biobroom`: bioconductor objects
+- `schoenberg`: gams
+- `tidybayes`: bayesian models
+- `broom.base`: broom infrastructure
+- `mlbroom`: doesn't exist yet but demand seems high
+
+## Priorities for the next 3 weeks
+
+1. Vignette on addings tidiers to packages other than broom
+1. Infrastructure for auto-building `@return` documentation
+1. Write `tidy.yaml`, `glance.yaml` and `augment.yaml`
+1. Move time series stuff into sweep
+1. Reach out to potential collaborators
+1. Make sure existing tidiers meet behavioral specification
+
+## Questions?
+
+Read more about [broom 0.5.0 release](https://www.tidyverse.org/articles/2018/07/broom-0-5-0/) on the tidyverse blog.
+
+You can follow broom development on our [Github page](https://github.com/tidyverse/broom/).
+
+@alexpghayes on Twitter  
+alexpghayes@gmail.com
+
+# Appendix
+
+## `broom 0.5.0`: matrix column and augment example
+
+```{r, eval = FALSE}
 y <- rnorm(5)
 x <- matrix(rnorm(10), nrow = 5)
 
@@ -300,137 +405,32 @@ augment(fit)            # this goes kaboom
 
 Passing `data` argument can help:
 
-```{r}
+```{r, eval = FALSE}
 augment(fit, data = df)  # happy again
 ```
 
-## broom 0.5.0: deprecations
+## Aside: model coverage
 
-- Broom tidies some non-statistical objects
-- Moving away from this. Deprecating
-    - `tidy.data.frame()`
-    - `tidy.matrix()`
-    - `tidy.numeric()`
-    - `tidy.character()`
-- Should use `tibble::as_tibble()` instead
-- Couple more of these coming in 0.7.0
+```{r, eval = FALSE}
+# glance.arima coverage was 100 percent.
+# tested output of:
+glance(arima(lh, order = 1:3))
 
-## broom 0.5.0: deprecations: mixed models
-
-Moving tidiers for 
-
-- lme, lme4 and nmle models,
-- brms models,
-- rstanarm models, and 
-- mcmc objects
-
-to Ben Bolker's `broom.mixed` package
-
-# Lessons learned
-
-## Making systematic changes is time consuming
-
-- 100+ tidiers
-- Model objects are unfamiliar, oftentimes idiosyncratic
-- Changing all tidiers (i.e. new tests/doc) take 1-1.5 weeks
-
-## Broom depends on high quality PRs
-
-- If you do not use a model, writing a good tidier is incredibly difficult
-    - What information is important?
-    - What do people use it for?
-    - Documentation for models varies in quality
-    - Can be hard to understand workflow
-    - Model objects, input and output format can all be weird
-    
-- A good PR means you don't have to deal with this
-- A bad PR means you still have to do most of this work
-
-**Key**: empower contributors to make high quality PRs
-
-## `augment()` is hard
-
-Original thought: `tidy()` is most ambiguous method, will be hardest to work with
-
-Incorrect: `augment()` is hard
-
-- Need different behavior for `data` and `newdata` args
-- People often don't implement it
-- Have to deal with model both model input and output
-
-## There are many useful way to represent a model
-
-Representations of a fit model:
-
-- Mathematical: $y \sim \mathcal N(X \hat \beta, \sigma^2)$
-- Code object: `fit <- lm(hp ~ . , mtcars); fit`
-- Relational: `tidy(fit), glance(fit), augment(fit)`
-- ???
-
-Opinion: need a *tidy modelling* paper to clarify the key objects in play like *tidy data* did
-
-# The Future of Broom
-
-## The big split
-
-What: split broom into domain specific tidying packages
-
-Why: high maintanence and design burden
-
-**Delays**:
-
-- Want to clean up internals, which were messier than anticipated
-- Tidier behavior not fully specified
-    - `augment()` NA behavior
-- Lots of tidiers don't meet existing specifications
-
-## The big split: vision
-
-- import `tidy()`, `glance()` and `augment()` from `modelgenerics`
-- `broom` tidies models in `base` and `stats`
-- domain-specific packages import broom
-    - tests guarantee tidiers meet specification
-- some system for tracking where tidiers live
-
-```{r}
-library(tidymodels)  # load everything
+# but this was broken until recently:
+glance(arima(lh, order = 1:3, method = "CSS"))
 ```
 
-## Possible domain specific packages
+- Same class can correspond to many varied model objects
+- Hard to write varied tests for unfamiliar model objects
 
-- `sweep`
-- `tidytext`
-- `broomstick`
-- `broom.mixed`
-- `biobroom`
-- `broom.base`
-- `schoenberg`
-- `tidybayes`
+## Aside: arguments disappearing into `...`
 
-## Should `tidy.betareg` live in the `betareg` package?
+```{r}
+fit <- lm(hp ~ ., mtcars)
 
-No. At least, not yet. Tidiers are not consistent enough at the moment. The definitions of `tidy()`, `glance()` and `augment()` are not yet strict enough to guarantee consistency across packages.
+# misspelled argument
+td <- tidy(fit, conf.int = TRUE, comf.level = 0.9)
 
-## Timeline
-
-Priorities somewhat indeterminate at the moment
-
-- July: finalize tidier specifications
-- July: start collaborating on domain specific packages
-- Early August: implement as much spec as possible for 0.7.0 release
-- August 20: internship ends
-- Late August: 0.7.0 release
-    - I will likely take over as package maintainer
-    - Unclear if broom will be split by this point
-- Early September: grad school starts (dev slows down)
-- September+: rewrite the broom paper with Dave
-
-## Questions?
-
-Read more about [broom 0.5.0 release](https://www.tidyverse.org/articles/2018/07/broom-0-5-0/) on the tidyverse blog.
-
-You can follow broom development on our [Github page](https://github.com/tidyverse/broom/).
-
-@alexpghayes on Twitter  
-alexpghayes@gmail.com
-
+# no error, output looks exactly like
+# you might expect
+```
