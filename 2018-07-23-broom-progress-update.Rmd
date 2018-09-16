@@ -260,7 +260,7 @@ Incorrect: `augment()` is hard
 
 - Need different behavior for `data` and `newdata` args
 - People often don't implement it
-- Have to deal with model both model input and output
+- Have to deal with both model input and output
 
 ## Lesson: there are many ways to represent a model
 
@@ -304,7 +304,7 @@ Goal: enforce consistency, especially in new PRs
 library(lavaan)
 
 cfa.fit <- cfa(
-   'F =~ x1 + x2 + x3 + x4 + x5',
+   "F =~ x1 + x2 + x3 + x4 + x5",
    data = HolzingerSwineford1939, group = "school"
 )
 
@@ -326,7 +326,6 @@ select(glance(cfa.fit), 1:5)
 - Export `column_glossary` (downstream package maintainers have asked for this)
 - Test output column names against `column_glossary`
 - Populate documentation from `column_glossary`
-- Have a `@template` prototype, Hadley suggested `@evalRd` instead
 
 ## Tools for contributors: more vignettes
 
@@ -349,8 +348,8 @@ select(glance(cfa.fit), 1:5)
 - Finish any missing aspects of the tidier behavior specification
 - Document this clearly
 - Develop tests for as much fo the spec as possible
-- Reach out to package maintainers working on similar packages
-- Invite them to join `tidymodels` once they meet the spec
+- Reach out to package maintainers
+- Invite them to join `tidymodels` once they meet the spec??
 - Some system for keeping track of where tidiers live
 - Potentially break boom into smaller pieces
 
