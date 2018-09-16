@@ -32,6 +32,11 @@ options(tibble.print_max = 3, tibble.print_min = 3)
 theme_set(theme_gray(base_size = 22))
 ```
 
+## These slides are available online!
+
+\large 
+[https://tinyurl.com/broom-talk](https://tinyurl.com/broom-talk)
+
 # Who am I?
 
 ## About Me
@@ -501,17 +506,17 @@ fit_nls_on_bootstrap <- function(split) {
 ## Bootstrapping
 
 ```{r}
-boot_models <- boots %>% 
-    mutate(model = map(splits, fit_nls_on_bootstrap),
-           coef_info = map(model, tidy))
+boot_fits <- boots %>% 
+    mutate(fit = map(splits, fit_nls_on_bootstrap),
+           coef_info = map(fit, tidy))
 
-boot_models
+boot_fits
 ```
 
 ## Bootstrapping
 
 ```{r}
-boot_coefs <- boot_models %>% 
+boot_coefs <- boot_fits %>% 
     unnest(coef_info)
 
 boot_coefs
@@ -536,12 +541,11 @@ p <- ggplot(boot_coefs, aes(estimate)) +
 p
 ```
 
-
 ## Bootstrapping
 
 ```{r}
-boot_aug <- boot_models %>% 
-    mutate(augmented = map(model, augment)) %>% 
+boot_aug <- boot_fits %>% 
+    mutate(augmented = map(fit, augment)) %>% 
     unnest(augmented)
 
 p <- ggplot(boot_aug, aes(wt, mpg)) +
@@ -564,6 +568,21 @@ p
 2. Use `purrr::map()` to apply `tidy()`, `glance()` or `augment()` to each fit
 3. Use `tidyverse` tools to manipulate and visualize resulting data!
 
+# `tidymodels`
+
+
+## `tidymodels`
+
+$\begin{array}{l} \includegraphics{figures/tidymodels_logo.png} \end{array}$
+[https://github.com/tidymodels/tidymodels](https://github.com/tidymodels/tidymodels)
+
+A general attempt to make modeling in R more consistent and tidy. Lots of [big projects](https://github.com/orgs/tidymodels/projects). Highlights:
+
+> - [best practices for developing modeling packages](https://tidymodels.github.io/model-implementation-principles/)
+> - [`parnsip`](https://topepo.github.io/parsnip/): standardized modeling interfaces (in progress)
+> - [`recipes`](https://tidymodels.github.io/recipes/): data pre-processing
+> - [`rsample`](https://tidymodels.github.io/rsample/): infrastructure for resampling
+
 ## Questions?
 
 Read about the recent `broom` release on the [tidyverse blog](https://www.tidyverse.org/articles/2018/07/broom-0-5-0/).
@@ -578,15 +597,3 @@ $\begin{array}{l} \includegraphics{figures/twitter.png} \end{array}$
 [\@alexpghayes](https://twitter.com/alexpghayes)
 $\begin{array}{l} \includegraphics{figures/gmail.png} \end{array}$
 [alexpghayes@gmail.com](mailto:alexpghayes@gmail.com)
-
-## `tidymodels`
-
-$\begin{array}{l} \includegraphics{figures/tidymodels_logo.png} \end{array}$
-[https://github.com/tidymodels/tidymodels](https://github.com/tidymodels/tidymodels)
-
-A general attempt to make modeling in R more consistent and tidy. Lots of [big projects](https://github.com/orgs/tidymodels/projects). Highlights:
-
-> - [best practices for developing modeling packages](https://tidymodels.github.io/model-implementation-principles/)
-> - [`parnsip`](https://topepo.github.io/parsnip/): standardized modeling interfaces (in progress)
-> - [`recipes`](https://tidymodels.github.io/recipes/): data pre-processing
-> - [`rsample`](https://tidymodels.github.io/rsample/): infrastructure for resampling
