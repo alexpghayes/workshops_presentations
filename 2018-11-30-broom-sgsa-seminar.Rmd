@@ -19,6 +19,7 @@ classoption: compress
 knitr::opts_chunk$set(
   collapse = TRUE,
   echo = TRUE,
+  cache = TRUE,
   warning = FALSE,
   message = FALSE,
   fig.align = "center"
@@ -32,16 +33,10 @@ options(tibble.print_max = 3, tibble.print_min = 3)
 theme_set(theme_gray(base_size = 22))
 ```
 
-
-<!-- ## Solving the model representation problem with broom -->
-
-<!-- The R objects used to represent model fits are notoriously inconsistent, making data analysis inconvenient and frustrating. The broom package resolves this issue by defining a consistent way to represent model fits. By summarizing essential information about fits in tidy tibbles, broom makes it easy to programmatically work with model objects. Combining broom with list-columns results in an especially powerful way to work with many model fits at once. This talk will feature several case studies demonstrating how broom resolves common problems in data analysis. I'll conclude with some thoughts on the future of broom and how broom might fit into an overall grammar of statistical modeling. -->
-
-
 ## These slides are available online!
 
 \large 
-[https://tinyurl.com/broom-talk](https://tinyurl.com/broom-talk)
+[https://tinyurl.com/broom-talk](https://tinyurl.com/broom-talk-sgsa)
 
 # Who am I?
 
@@ -51,9 +46,9 @@ theme_set(theme_gray(base_size = 22))
 knitr::include_graphics("figures/beer_bike.jpg")
 ```
 
-- Summer intern at RStudio last summer
-- Primary maintainer of the [`broom`](https://broom.tidyverse.org/) package
-- Just started a PhD in Statistics at UW-Madison
+- Just started the Ph.D. program here
+- Interned at RStudio over the summer
+- Current maintainer of the [`broom`](https://broom.tidyverse.org/) package
 - Active on #rstats Twitter and Github
 
 # Statistical models

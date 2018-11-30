@@ -1,7 +1,7 @@
 ---
-title: "Solving the model representation problem with `broom`"
+title: "Convenient statistical modeling with `broom`"
 author: "Alex Hayes"
-date: "`r Sys.Date()`"
+date: "2018-11-14"
 output:
   beamer_presentation:
     keep_tex: false
@@ -32,17 +32,6 @@ options(tibble.print_max = 3, tibble.print_min = 3)
 theme_set(theme_gray(base_size = 22))
 ```
 
-
-<!-- ## Solving the model representation problem with broom -->
-
-<!-- The R objects used to represent model fits are notoriously inconsistent, making data analysis inconvenient and frustrating. The broom package resolves this issue by defining a consistent way to represent model fits. By summarizing essential information about fits in tidy tibbles, broom makes it easy to programmatically work with model objects. Combining broom with list-columns results in an especially powerful way to work with many model fits at once. This talk will feature several case studies demonstrating how broom resolves common problems in data analysis. I'll conclude with some thoughts on the future of broom and how broom might fit into an overall grammar of statistical modeling. -->
-
-
-## These slides are available online!
-
-\large 
-[https://tinyurl.com/broom-talk](https://tinyurl.com/broom-talk)
-
 # Who am I?
 
 ## About Me
@@ -56,13 +45,7 @@ knitr::include_graphics("figures/beer_bike.jpg")
 - Just started a PhD in Statistics at UW-Madison
 - Active on #rstats Twitter and Github
 
-# Statistical models
-
-## What is a model?
-
-Let $x$ be values that live in some space $\mathcal X$, and let $y$ be observations of interest that live in some space $\mathcal Y$. A **statistical model** is a *set* of probability distributions $\mathcal P(y | x)$ indexed by parameters $\theta \in \Theta$[^1].
-
-[^1]: In some cases we treat $\theta$ as itself random, which means that our model is a class of probability distributions $\mathcal P(y, \theta | x)$.
+# Statistical models: some vocabulary
 
 ## Example: the normal model
 
@@ -74,7 +57,7 @@ Here $\theta = (\mu, \sigma^2)$ and the parameter space is $\mathbb R \times \ma
 
 ## Visualizing the normal model
 
-Again: a model is a *set*.
+A model is a *set*.
 
 \begin{center}
 \begin{tikzpicture}
@@ -210,9 +193,7 @@ knitr::include_graphics("figures/meme_science_cat.jpg")
 
 A **model** corresponds to a set of possible truths about the world. A **fit** is a single truth about the world. An **estimator** is a way to choose the truth most suggested by the data from a set of many possible truths.
 
-Aside: the actual truth is almost certainly *not* in the model!
-
-# The model representation problem
+# What problem does `broom` solve?
 
 ## Representing a fit in mathematical terms
 
@@ -261,7 +242,6 @@ knitr::include_graphics("figures/meme_frustration.jpg")
 
 We have no shared framework or understanding of how to represent statistical models, estimation methods and fits with R objects.
 
-
 ## Aside
 
 - People who write and share code to enable data analysis are awesome
@@ -290,33 +270,7 @@ Say we:
 3. A table of overall goodness-of-fit measures
 
 - Each of table reported as a tidy `tibble`.
-- Together these constitute a *tidy representation* of a fit.
-
-## What is a `tibble`
-
-A [`tibble`](https://tibble.tidyverse.org/) is a more consistent `data.frame`. `tibble`s are used widely throughout the [`tidyverse`](https://www.tidyverse.org/).
-
-```{r}
-library(tibble)
-
-tibble(x = 1:2, y = 3:4)
-```
-
-## What does it mean to be tidy?
-
-I highly recommend reading Hadley Wickham's [Tidy Data](http://vita.had.co.nz/papers/tidy-data.pdf) paper! The short version: a **tidy dataset** is one where:
-
-1. Each variable forms a column.
-2. Each observation forms a row.
-3. Each type of observational unit forms a table.
-
-## The `broom` generics
-
-So how do we turn fits into tidy tibbles?
-
-- `tidy()` summarizes information about fit components
-- `glance()` reports information about the entire fit
-- `augment()` adds information about observations to a dataset
+- Together these constitute a "tidy" representation of a fit.
 
 ## Continuing with the normal model example
 
@@ -338,6 +292,14 @@ normal_fit <- MASS::fitdistr(
 ```{r}
 str(normal_fit)
 ```
+
+## The `broom` generics
+
+So how do we turn fits into tidy tibbles?
+
+- `tidy()` summarizes information about fit components
+- `glance()` reports information about the entire fit
+- `augment()` adds information about observations to a dataset
 
 ## What is the tidy representation of `normal_fit`?
 
@@ -495,26 +457,35 @@ library(rsample)
 
 boots <- bootstraps(mtcars, times = 100)
 boots
+
+boots$splits[[1]]
+
+analysis(boots$splits[[1]])
+assessment(boots$splits[[1]])
+
+boots
 ```
 
 ## Bootstrapping
 
 ```{r}
 fit_nls_on_bootstrap <- function(split) {
-    nls(
-      mpg ~ k / wt + b,
-      analysis(split),
-      start = list(k = 1, b = 0)
-    )
+  nls(
+    mpg ~ k / wt + b,
+    analysis(split),
+    start = list(k = 1, b = 0)
+  )
 }
+
+fit_nls_on_bootstrap(boots$splits[[1]])
 ```
 
 ## Bootstrapping
 
 ```{r}
 boot_fits <- boots %>% 
-    mutate(fit = map(splits, fit_nls_on_bootstrap),
-           coef_info = map(fit, tidy))
+  mutate(fit = map(splits, fit_nls_on_bootstrap),
+         coef_info = map(fit, tidy))
 
 boot_fits
 ```
@@ -551,8 +522,8 @@ p
 
 ```{r}
 boot_aug <- boot_fits %>% 
-    mutate(augmented = map(fit, augment)) %>% 
-    unnest(augmented)
+  mutate(augmented = map(fit, augment)) %>% 
+  unnest(augmented)
 
 p <- ggplot(boot_aug, aes(wt, mpg)) +
   geom_point() +
@@ -574,8 +545,19 @@ p
 2. Use `purrr::map()` to apply `tidy()`, `glance()` or `augment()` to each fit
 3. Use `tidyverse` tools to manipulate and visualize resulting data!
 
-# `tidymodels`
+# Next steps and `tidymodels`
 
+## Next steps for `broom`
+
+General projects
+
+> - Continue to standardize naming throughout package
+> - Cleanup of internals
+
+Possible new generics
+
+> - Opinionated tidying methods: return only statistical sound measures
+> - Generic to translate a code object into LaTeX (it's mathematical representation)?
 
 ## `tidymodels`
 
