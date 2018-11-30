@@ -36,7 +36,7 @@ theme_set(theme_gray(base_size = 22))
 ## These slides are available online!
 
 \large 
-[https://tinyurl.com/broom-talk](https://tinyurl.com/broom-talk-sgsa)
+[https://tinyurl.com/broom-talk-sgsa](https://tinyurl.com/broom-talk-sgsa)
 
 # Who am I?
 
@@ -46,10 +46,10 @@ theme_set(theme_gray(base_size = 22))
 knitr::include_graphics("figures/beer_bike.jpg")
 ```
 
-- Just started the Ph.D. program here
-- Interned at RStudio over the summer
-- Current maintainer of the [`broom`](https://broom.tidyverse.org/) package
-- Active on #rstats Twitter and Github
+> - Just started the Ph.D. program here
+> - Interned at RStudio over the summer
+> - Current maintainer of the [`broom`](https://broom.tidyverse.org/) package
+> - Active on #rstats Twitter and Github
 
 # Statistical models
 
@@ -205,8 +205,6 @@ knitr::include_graphics("figures/meme_science_cat.jpg")
 
 A **model** corresponds to a set of possible truths about the world. A **fit** is a single truth about the world. An **estimator** is a way to choose the truth most suggested by the data from a set of many possible truths.
 
-Aside: the actual truth is almost certainly *not* in the model!
-
 # The model representation problem
 
 ## Representing a fit in mathematical terms
@@ -287,7 +285,7 @@ Say we:
 - Each of table reported as a tidy `tibble`.
 - Together these constitute a *tidy representation* of a fit.
 
-## What is a `tibble`
+## Aside: What is a `tibble`
 
 A [`tibble`](https://tibble.tidyverse.org/) is a more consistent `data.frame`. `tibble`s are used widely throughout the [`tidyverse`](https://www.tidyverse.org/).
 
@@ -297,13 +295,13 @@ library(tibble)
 tibble(x = 1:2, y = 3:4)
 ```
 
-## What does it mean to be tidy?
+## Aside: What does it mean to be tidy?
 
 I highly recommend reading Hadley Wickham's [Tidy Data](http://vita.had.co.nz/papers/tidy-data.pdf) paper! The short version: a **tidy dataset** is one where:
 
 1. Each variable forms a column.
 2. Each observation forms a row.
-3. Each type of observational unit forms a table.
+3. Differents kinds of data live in different tables.
 
 ## The `broom` generics
 
@@ -560,7 +558,6 @@ p <- ggplot(boot_aug, aes(wt, mpg)) +
 p
 ```
 
-
 ## General strategy
 
 `broom` provides tidying methods for 100+ classes!
@@ -569,8 +566,45 @@ p
 2. Use `purrr::map()` to apply `tidy()`, `glance()` or `augment()` to each fit
 3. Use `tidyverse` tools to manipulate and visualize resulting data!
 
-# `tidymodels`
+# Open Questions & Hot Takes
 
+## How should we represent the following objects?
+
+*Sets of fits* are particularly interesting to think about:
+
+> - Path algorithms (i.e. LASSO fits)
+>    - Can do inference from a single fit
+>    - Can do inference from the entire LASSO path
+> - Ensembles (i.e. random forests)
+
+Are there different types of sets of fits?
+
+## Generics should operate on *fits*, not models
+
+Consider the following methods, all for the linear model:
+
+- `plot_lasso_path()` for OLS vs LASSO fits
+- `coef_standard_errors()` for OLS vs LASSO fits
+- `interpret_coefficients()` for OLS vs GEE fits
+
+## What operations should we be able to perform?
+
+Things pretty much everybody agrees on:
+
+> - `fit(model, estimator, data)`
+> - `predict(model, new_data)`
+
+Actions that are begging for S3 generics:
+
+> - Diagnostics
+>    - Convergence
+>    - Assumption checking
+> - Model visualization
+> - ...
+
+If you have thoughts about these, please talk to me!
+
+# `tidymodels`
 
 ## `tidymodels`
 
@@ -580,7 +614,7 @@ $\begin{array}{l} \includegraphics{figures/tidymodels_logo.png} \end{array}$
 A general attempt to make modeling in R more consistent and tidy. Lots of [big projects](https://github.com/orgs/tidymodels/projects). Highlights:
 
 > - [best practices for developing modeling packages](https://tidymodels.github.io/model-implementation-principles/)
-> - [`parnsip`](https://topepo.github.io/parsnip/): standardized modeling interfaces (in progress)
+> - [`parnsip`](https://topepo.github.io/parsnip/): standardized modeling interfaces (now on CRAN!!)
 > - [`recipes`](https://tidymodels.github.io/recipes/): data pre-processing
 > - [`rsample`](https://tidymodels.github.io/rsample/): infrastructure for resampling
 
