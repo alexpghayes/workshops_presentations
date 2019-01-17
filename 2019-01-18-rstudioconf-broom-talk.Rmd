@@ -1,16 +1,15 @@
 ---
 title: "Solving the model representation problem with `broom`"
-author: "Alex Hayes"
+author: "Alex Hayes (RStudio Intern 2018, `broom` maintainer)"
 date: "2018-01-18"
 output:
   beamer_presentation:
-  keep_tex: false
-theme: metropolis
-slide_level: 2
-incremental: true
-toc: true
-includes:
-  in_header: header.txt
+    keep_tex: false
+    theme: metropolis
+    slide_level: 2
+    incremental: true
+    includes:
+      in_header: header.txt
 fontsize: 12pt
 classoption: compress
 ---
@@ -29,181 +28,20 @@ library(tidyverse)
 library(broom)
 
 set.seed(27)
-options(tibble.print_max = 3, tibble.print_min = 3)
+options(
+  tibble.print_max = 3,
+  tibble.print_min = 3,
+  width = 55
+)
+
 theme_set(theme_gray(base_size = 22))
 ```
 
 ## These slides are available online!
 
+\center
 \large
 [https://tinyurl.com/rstudioconf-broom](https://tinyurl.com/rstudioconf-broom)
-
-# Who am I?
-
-## About Me
-
-```{r echo = FALSE, out.width = "2.5in", out.height = "1.5in"}
-knitr::include_graphics("figures/beer_bike.jpg")
-```
-
-> - Just started the Ph.D. program here
-> - Interned at RStudio over the summer
-> - Current maintainer of the [`broom`](https://broom.tidyverse.org/) package
-> - Active on #rstats Twitter and Github
-
-# Statistical models
-
-## What is a model?
-
-Let $x$ be values that live in some space $\mathcal X$, and let $y$ be observations of interest that live in some space $\mathcal Y$. A **statistical model** is a *set* of probability distributions $\mathcal P(y | x)$ indexed by parameters $\theta \in \Theta$[^1].
-
-[^1]: In some cases we treat $\theta$ as itself random, which means that our model is a class of probability distributions $\mathcal P(y, \theta | x)$.
-
-## Example: the normal model
-
-$$
-  y_i \stackrel{\mathrm{iid}}{\sim} \mathrm{Normal}(\mu, \sigma^2)
-$$
-
-Here $\theta = (\mu, \sigma^2)$ and the parameter space is $\mathbb R \times \mathbb R^+$.
-
-## Visualizing the normal model
-
-Again: a model is a *set*.
-
-\begin{center}
-\begin{tikzpicture}
-  \draw[smooth cycle, thick, tension=0.7] plot coordinates{(2, 1.8) (-1,0) (.6, -1.2) (3,-2) (5,1)};
-  \node at (2, 2.3) {Model};
-  
-  \draw [fill] (3, 1) circle [radius=0.05];
-  \node [below] at (3, 1) {$y_i \sim \mathrm{Normal}(-2, 1)$};
-  
-  \draw [fill] (1, 0) circle [radius=0.05];
-  \node [below] at (1, 0) {$y_i \sim \mathrm{Normal}(3, 10)$};
-\end{tikzpicture}
-\end{center}
-
-We call a single element of a model a **fit**. The distribution with $\mu = -2, \sigma^2 = 1$ is a fit, for example.
-
-<!-- TODO: model -- parameter space isomorphism diagram -->
-
-<!-- Each fit corresponds to one point in the parameter space. -->
-
-## Another (parametric) example: the linear model
-
-Given response $y$ and predictor variables $x_1$ and $x_2$, the linear model looks like:
-
-$$
-y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \varepsilon_i \qquad
-\varepsilon_i \stackrel{\mathrm{iid}}{\sim} \mathrm{Normal}(0, \sigma^2)
-$$
-
-This model says that $y$ is i.i.d with a mean that depends on $x$ and $\vec \beta$, and with fixed variance $\sigma^2$.
-
-## Estimation
-
-An **estimator** is a way to calculate the parameters of a model from data[^2]. They are many estimators for any given model, and which one we think is best depends on how we define "agrees best with the data."
-
-[^2]: This is equivalent to selecting the best fit!
-
-## Some estimators for the normal model
-
-- $\displaystyle \hat \mu = 1 \qquad \quad \hat \sigma^2 = 10$
-
-\vspace{2mm}
-
-- $\displaystyle \hat \mu = {1 \over n} \sum_{i=1}^n x_i \qquad \hat \sigma^2 = {1 \over n} \sum_{i=1}^n (x_i - \bar x)^2$
-
-\vspace{2mm}
-
-- $\displaystyle \hat \mu = {1 \over n} \sum_{i=1}^n x_i \qquad \hat \sigma^2 = {1 \over n - 1} \sum_{i=1}^n (x_i - \bar x)^2$
-
-## Visualizing estimation
-
-\begin{center}
-\begin{tikzpicture}
-  \draw[smooth cycle, thick, tension=0.7] plot coordinates{(2, 1.8) (-1,0) (.6, -1.2) (3,-2) (5,1)};
-\node at (2, 2.3) {Model};
-  
-  \draw [fill] (3, 1) circle [radius=0.05];
-  \draw [fill] (1, 0) circle [radius=0.05];
-  \draw [fill] (2.3, -0.5) circle [radius=0.05];
-  \draw [fill] (0.1, 0.2) circle [radius=0.05];
-  \draw [fill] (2.8, 0.6) circle [radius=0.05];
-  \draw [fill] (2, -1.7) circle [radius=0.05];
-  \draw [fill] (0.9, -1) circle [radius=0.05];
-  \draw [fill] (4, 1.1) circle [radius=0.05];
-  \draw [fill] (3.5, 0.3) circle [radius=0.05];
-  \draw [fill] (2.4, -1.6) circle [radius=0.05];
-  \draw [fill] (-0.3, -0.05) circle [radius=0.05];
-  \draw [fill] (3.2, -0.15) circle [radius=0.05];
-  \draw [fill] (1.5, 1.4) circle [radius=0.05];
-
-\end{tikzpicture}
-\end{center}
-
-## Visualizing estimation
-
-\begin{center}
-\begin{tikzpicture}
-  \draw[smooth cycle, thick, tension=0.7] plot coordinates{(2, 1.8) (-1,0) (.6, -1.2) (3,-2) (5,1)};
-  \node at (2, 2.3) {Model};
-  
-  \draw [fill] (3, 1) circle [radius=0.05];
-  \draw [fill] (1, 0) circle [radius=0.05];
-  \draw [fill, red] (2.3, -0.5) circle [radius=0.05];
-  \draw [fill] (0.1, 0.2) circle [radius=0.05];
-  \draw [fill] (2.8, 0.6) circle [radius=0.05];
-  \draw [fill] (2, -1.7) circle [radius=0.05];
-  \draw [fill] (0.9, -1) circle [radius=0.05];
-  \draw [fill] (4, 1.1) circle [radius=0.05];
-  \draw [fill] (3.5, 0.3) circle [radius=0.05];
-  \draw [fill] (2.4, -1.6) circle [radius=0.05];
-  \draw [fill] (-0.3, -0.05) circle [radius=0.05];
-  \draw [fill] (3.2, -0.15) circle [radius=0.05];
-  \draw [fill] (1.5, 1.4) circle [radius=0.05];
-
-\end{tikzpicture}
-\end{center}
-
-## Estimates found!
-
-\begin{center}
-\begin{tikzpicture}
-  \draw[smooth cycle, thick, tension=0.7] plot coordinates{(2, 1.8) (-1,0) (.6, -1.2) (3,-2) (5,1)};
-  \node at (2, 2.3) {Model};
-  
-  \draw [fill] (3, 1) circle [radius=0.05];
-  \draw [fill] (1, 0) circle [radius=0.05];
-  \draw [fill, red] (2.3, -0.5) circle [radius=0.05];
-  \draw [fill] (0.1, 0.2) circle [radius=0.05];
-  \draw [fill] (2.8, 0.6) circle [radius=0.05];
-  \draw [fill] (2, -1.7) circle [radius=0.05];
-  \draw [fill] (0.9, -1) circle [radius=0.05];
-  \draw [fill] (4, 1.1) circle [radius=0.05];
-  \draw [fill] (3.5, 0.3) circle [radius=0.05];
-  \draw [fill] (2.4, -1.6) circle [radius=0.05];
-  \draw [fill] (-0.3, -0.05) circle [radius=0.05];
-  \draw [fill] (3.2, -0.15) circle [radius=0.05];
-  \draw [fill] (1.5, 1.4) circle [radius=0.05];
-
-\end{tikzpicture}
-\end{center}
-
-\begin{center}
-Best fit: $y_i \sim \mathrm{Normal}(-2, 1)$. Finally we can do inference!
-\end{center}
-
-## Do all the inference
-
-```{r echo = FALSE, out.width = "70%"}
-knitr::include_graphics("figures/meme_science_cat.jpg")
-```
-
-## Some intuition about models, estimators and fits
-
-A **model** corresponds to a set of possible truths about the world. A **fit** is a single truth about the world. An **estimator** is a way to choose the truth most suggested by the data from a set of many possible truths.
 
 # The model representation problem
 
@@ -242,76 +80,21 @@ Suppose you want class probabilities from a fit called `obj`:
   |`logitboost`  |`predict(obj, type = "raw", nIter)`        |
   |`pamr.train`  |`pamr.predict(obj, type = "posterior")`    |
 
-## How am I supposed to keep track of all this!?
-
-  ```{r echo = FALSE, out.width = "\\textwidth"}
-knitr::include_graphics("figures/meme_frustration.jpg")
-```
-
 ## The model representation problem
 
 \large
 
 We have no shared framework or understanding of how to represent statistical models, estimation methods and fits with R objects.
 
-
-## Aside
-
-- People who write and share code to enable data analysis are awesome
-- This isn't anyone's fault
-- Trying to get things done can still be frustrating
-
 # The `broom` package
-
-## The scene
-
-Say we:
-
-  1. pick a model,
-2. pick an estimator for that model, and then
-3. get an R object `fit` using that estimator.
-
-- The `fit` object is different for every model.
-- The `fit` object could be great to work with, or awful.
 
 ## `broom` provides a standard way to represent **fits**
 
-`broom` treats fits as having three parts:
+1. `tidy()`: summarize information about fit components
+2. `glance()`: report goodness of fit measures
+3. `augment()`: add information about observations to a dataset
 
-  1. A table of information about fit parameters
-2. A table of information about each observation used to estimate the fit
-3. A table of overall goodness-of-fit measures
-
-- Each of table reported as a tidy `tibble`.
-- Together these constitute a *tidy representation* of a fit.
-
-## Aside: What is a `tibble`
-
-A [`tibble`](https://tibble.tidyverse.org/) is a more consistent `data.frame`. `tibble`s are used widely throughout the [`tidyverse`](https://www.tidyverse.org/).
-
-```{r}
-library(tibble)
-
-tibble(x = 1:2, y = 3:4)
-```
-
-## Aside: What does it mean to be tidy?
-
-I highly recommend reading Hadley Wickham's [Tidy Data](http://vita.had.co.nz/papers/tidy-data.pdf) paper! The short version: a **tidy dataset** is one where:
-
-1. Each variable forms a column.
-2. Each observation forms a row.
-3. Differents kinds of data live in different tables.
-
-## The `broom` generics
-
-So how do we turn fits into tidy tibbles?
-
-- `tidy()` summarizes information about fit components
-- `glance()` reports information about the entire fit
-- `augment()` adds information about observations to a dataset
-
-## Continuing with the normal model example
+## The normal model: an example
 
 ```{r}
 # simulate Normal(-2, 1) data
@@ -319,17 +102,20 @@ x <- rnorm(5000, -2, 1)
 
 # create a fit object using
 # MLE estimator and normal model
+
 normal_fit <- MASS::fitdistr(
   x,
-  dnorm,  # use the normal model!
+  dnorm,
   start = list(mean = 0, sd = 1)
 )
 ```
 
 ## What is `normal_fit`?
 
-```{r}
-str(normal_fit)
+<!-- difference structure for different models -->
+
+```{r echo = FALSE}
+unclass(normal_fit[1:4])
 ```
 
 ## What is the tidy representation of `normal_fit`?
@@ -372,57 +158,29 @@ tidy(ols_fit)
 ## The tidy representation of `lm` objects
 
 ```{r}
-glance(ols_fit)[, 1:5]
+glance(ols_fit)
 ```
 
 ## The tidy representation of `lm` objects
 
 ```{r}
-augment(ols_fit)[, 1:7]
+augment(ols_fit)
 ```
-
-## Notes about the tidy representation
-
-- Always get a tibble back
-- Column names in returned tibbles are consistent
-
-- Some information in the original R object is lost
 
 <!-- Why is the tidy representation useful? -->
 
 # Use cases
 
+<!-- i.e. why is this useful -->
+
 ## Report model coefficients with `tidy()`
 
-  ```{r}
+```{r}
 kable2 <- function(data)
   knitr::kable(mutate_if(data, is.numeric, round, 2))
 
 tidy(ols_fit) %>%
   kable2()
-```
-
-## Plot histograms/densities of p-values
-
-```{r}
-fit <- lm(mpg ~ ., mtcars)
-td <- tidy(fit)
-
-p <- ggplot(td, aes(p.value)) +
-  geom_density(
-    fill = "skyblue", color = "skyblue", alpha = 0.7
-  ) +
-  labs(
-    title = "Density of p-values for regression coefficients",
-    x = "P-value",
-    y = "Density"
-  )
-```
-
-## Plot histograms/densities of p-values
-
-```{r echo = FALSE, out.width = "90%"}
-p
 ```
 
 ## Comparing models by goodness of fit measures
@@ -441,7 +199,7 @@ gof <- map_df(fits, glance, .id = "model") %>%
 ## Comparing models by goodness of fit measures
 
 ```{r}
-select(gof, -c(2:7))
+gof
 ```
 
 ## Inspecting residuals from multiple linear regression
@@ -479,7 +237,7 @@ Consider a model:
 
 $$\texttt{mpg} = {k \over \texttt{wt}} + b + \varepsilon, \quad \varepsilon \sim \mathrm{Normal}(0, \sigma^2)$$
 
-  Suppose we want to know the sampling distributions of $k$ and $b$ via bootstrapping
+Suppose we want to know the sampling distributions of $k$ and $b$ via bootstrapping
 
 ## Bootstrapping
 
@@ -558,69 +316,11 @@ p <- ggplot(boot_aug, aes(wt, mpg)) +
 p
 ```
 
-## General strategy
-
-`broom` provides tidying methods for 100+ classes!
-
-1. Put fits in a list, or a list-column of a `tibble`
-2. Use `purrr::map()` to apply `tidy()`, `glance()` or `augment()` to each fit
-3. Use `tidyverse` tools to manipulate and visualize resulting data!
-
-# Open Questions & Hot Takes
-
-## How should we represent the following objects?
-
-*Sets of fits* are particularly interesting to think about:
-
-> - Path algorithms (i.e. LASSO fits)
->    - Can do inference from a single fit
->    - Can do inference from the entire LASSO path
-> - Ensembles (i.e. random forests)
-
-Are there different types of sets of fits?
-
-## Generics should operate on *fits*, not models
-
-Consider the following methods, all for the linear model:
-
-- `plot_lasso_path()` for OLS vs LASSO fits
-- `coef_standard_errors()` for OLS vs LASSO fits
-- `interpret_coefficients()` for OLS vs GEE fits
-
-## What operations should we be able to perform?
-
-Things pretty much everybody agrees on:
-
-> - `fit(model, estimator, data)`
-> - `predict(model, new_data)`
-
-Actions that are begging for S3 generics:
-
-> - Diagnostics
->    - Convergence
->    - Assumption checking
-> - Model visualization
-> - ...
-
-If you have thoughts about these, please talk to me!
-
-# `tidymodels`
-
-## `tidymodels`
-
-$\begin{array}{l} \includegraphics{figures/tidymodels_logo.png} \end{array}$
-  [https://github.com/tidymodels/tidymodels](https://github.com/tidymodels/tidymodels)
-
-A general attempt to make modeling in R more consistent and tidy. Lots of [big projects](https://github.com/orgs/tidymodels/projects). Highlights:
-
-> - [best practices for developing modeling packages](https://tidymodels.github.io/model-implementation-principles/)
-> - [`parnsip`](https://topepo.github.io/parsnip/): standardized modeling interfaces (now on CRAN!!)
-> - [`recipes`](https://tidymodels.github.io/recipes/): data pre-processing
-> - [`rsample`](https://tidymodels.github.io/rsample/): infrastructure for resampling
-
 ## Questions?
 
-Read about the recent `broom` release on the [tidyverse blog](https://www.tidyverse.org/articles/2018/07/broom-0-5-0/).
+Read about the [`broom 0.5.0` release](https://www.tidyverse.org/articles/2018/07/broom-0-5-0/).
+
+Read about [how to implement new tidiers](https://broom.tidyverse.org/articles/adding-tidiers.html)
 
 $\begin{array}{l} \includegraphics{figures/broom_logo.png} \end{array}$
   [https://broom.tidyverse.org](https://broom.tidyverse.org/)
