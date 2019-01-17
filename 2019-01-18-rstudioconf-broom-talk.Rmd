@@ -316,19 +316,21 @@ p <- ggplot(boot_aug, aes(wt, mpg)) +
 p
 ```
 
-## Questions?
+## Thank you! Questions?
 
-Read about the [`broom 0.5.0` release](https://www.tidyverse.org/articles/2018/07/broom-0-5-0/).
+Read about the [`broom 0.5.0` release](https://www.tidyverse.org/articles/2018/07/broom-0-5-0/) or [how to implement new tidiers](https://broom.tidyverse.org/articles/adding-tidiers.html)!
 
-Read about [how to implement new tidiers](https://broom.tidyverse.org/articles/adding-tidiers.html)
+\vspace{2mm}
 
 $\begin{array}{l} \includegraphics{figures/broom_logo.png} \end{array}$
   [https://broom.tidyverse.org](https://broom.tidyverse.org/)
 
-$\begin{array}{l} \includegraphics{figures/github.png} \end{array}$
-  [https://github.com/tidymodels/broom/](https://github.com/tidymodels/broom/)
+\vspace{1cm}
 
 $\begin{array}{l} \includegraphics{figures/twitter.png} \end{array}$
   [\@alexpghayes](https://twitter.com/alexpghayes)
 $\begin{array}{l} \includegraphics{figures/gmail.png} \end{array}$
   [alexpghayes@gmail.com](mailto:alexpghayes@gmail.com)
+  
+\center
+[alexpghayes.com](alexpghayes.com)
