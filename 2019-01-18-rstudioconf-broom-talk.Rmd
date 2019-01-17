@@ -1,7 +1,7 @@
 ---
 title: "Solving the model representation problem with `broom`"
 author: "Alex Hayes (RStudio Intern 2018, `broom` maintainer)"
-date: "2018-01-18"
+date: "2018-01-17"
 output:
   beamer_presentation:
     keep_tex: false
