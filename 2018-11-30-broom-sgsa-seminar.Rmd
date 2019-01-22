@@ -19,7 +19,6 @@ classoption: compress
 knitr::opts_chunk$set(
   collapse = TRUE,
   echo = TRUE,
-  cache = TRUE,
   warning = FALSE,
   message = FALSE,
   fig.align = "center"
