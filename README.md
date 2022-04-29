@@ -58,9 +58,9 @@ Broom is a package that converts statistical objects into tibbles. This consiste
 [slides](https://github.com/alexpghayes/rice-data-sci-first-r-package-workshop)
 
 **COMP 540 Prediction Project Advice**  
-2018-03-09, Rice University
+2018-03-09, Rice University  
 [slides](https://github.com/alexpghayes/comp540-kaggle-project-advice)
 
-**Super Learner**
-2018-01-23, Allen Lab Group Journal Club
+**Super Learner**  
+2018-01-23, Allen Lab Group Journal Club  
 [slides](https://github.com/alexpghayes/allen-journal-club-superlearner-slides)
