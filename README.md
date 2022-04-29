@@ -1,4 +1,4 @@
-#
+# Slides for my past talks used to live here, but they have been moved
 
 This repo used to contain slides and other files related to various presentations and workshops that I gave. As of 2022-04-28 I have created a separate repository for each presentation.
 
